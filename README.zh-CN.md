@@ -21,6 +21,7 @@
 - 单元测试 + API 测试
 - GitHub Actions CI
 - 发布脚本 `scripts/release.ps1`
+- 本地一键安装/启动脚本（非技术用户可直接使用）
 
 ## 2. 项目结构
 
@@ -28,7 +29,14 @@
 .
 ├── .github/workflows/ci.yml
 ├── config/custom-models.example.json
-├── scripts/release.ps1
+├── scripts
+│   ├── infer-local.ps1
+│   ├── one-click.ps1
+│   ├── release.ps1
+│   ├── setup-local.ps1
+│   ├── start-local.ps1
+│   ├── stop-local.ps1
+│   └── warmup_model.py
 ├── src/neurorouter
 │   ├── api
 │   ├── application
@@ -43,9 +51,36 @@
 └── README.zh-CN.md
 ```
 
-## 3. 快速启动
+## 3. 本地一键安装（推荐）
 
-### 3.1 安装依赖
+新机器上执行一次：
+
+```powershell
+.\scripts\one-click.ps1
+```
+
+这个脚本会自动完成：
+
+- 创建 `.venv`
+- 安装依赖
+- 预下载 `microsoft/resnet-18`
+- 后台启动 API 服务
+
+停止后台服务：
+
+```powershell
+.\scripts\stop-local.ps1
+```
+
+本地快速推理测试：
+
+```powershell
+.\scripts\infer-local.ps1 -ImagePath .\cat.jpg -Instruction "帮我用resnet分类这个图像"
+```
+
+## 4. 快速启动（手动方式）
+
+### 4.1 安装依赖
 
 ```bash
 python -m venv .venv
@@ -53,13 +88,13 @@ python -m venv .venv
 pip install -e .[dev]
 ```
 
-### 3.2 启动服务
+### 4.2 启动服务
 
 ```bash
 uvicorn neurorouter.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 3.3 调用分类接口
+### 4.3 调用分类接口
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/classify" \
@@ -68,7 +103,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/classify" \
   -F "top_k=5"
 ```
 
-## 4. 返回结构
+## 5. 返回结构
 
 ```json
 {
@@ -95,7 +130,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/classify" \
 }
 ```
 
-## 5. 扩展更多模型
+## 6. 扩展更多模型
 
 方案 A：直接在 `src/neurorouter/infrastructure/registry.py` 注册。
 
@@ -113,7 +148,7 @@ JSON 格式：
 }
 ```
 
-## 6. 许可和商业授权
+## 7. 许可和商业授权
 
 本仓库采用 **source-available demo 许可**（见 `LICENSE`）：
 
@@ -121,7 +156,7 @@ JSON 格式：
 - 商业使用必须获得你的书面授权。
 - 私有核心模块、私有数据、私有训练流水线不建议放入本公开仓库。
 
-## 7. 发布流程
+## 8. 发布流程
 
 ```powershell
 .\scripts\release.ps1 -Version 0.1.0 -Notes "Initial demo release"

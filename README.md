@@ -21,6 +21,7 @@ This repository is intentionally a **demo-only public codebase**. Keep your comm
 - Unit/API tests
 - GitHub Actions CI workflow
 - Release helper script (`scripts/release.ps1`)
+- Local one-click setup/start scripts for non-technical users
 
 ## 2. Project Structure
 
@@ -28,7 +29,14 @@ This repository is intentionally a **demo-only public codebase**. Keep your comm
 .
 ├── .github/workflows/ci.yml
 ├── config/custom-models.example.json
-├── scripts/release.ps1
+├── scripts
+│   ├── infer-local.ps1
+│   ├── one-click.ps1
+│   ├── release.ps1
+│   ├── setup-local.ps1
+│   ├── start-local.ps1
+│   ├── stop-local.ps1
+│   └── warmup_model.py
 ├── src/neurorouter
 │   ├── api
 │   ├── application
@@ -43,9 +51,36 @@ This repository is intentionally a **demo-only public codebase**. Keep your comm
 └── README.zh-CN.md
 ```
 
-## 3. Quick Start
+## 3. Local One-Click Setup (Recommended)
 
-### 3.1 Install
+For a fresh machine, run once:
+
+```powershell
+.\scripts\one-click.ps1
+```
+
+This script will:
+
+- Create `.venv`
+- Install dependencies
+- Pre-download `microsoft/resnet-18`
+- Start the API in background mode
+
+Stop the background service:
+
+```powershell
+.\scripts\stop-local.ps1
+```
+
+Quick local inference test:
+
+```powershell
+.\scripts\infer-local.ps1 -ImagePath .\cat.jpg -Instruction "help me use resnet to classify this image"
+```
+
+## 4. Quick Start (Manual)
+
+### 4.1 Install
 
 ```bash
 python -m venv .venv
@@ -53,13 +88,13 @@ python -m venv .venv
 pip install -e .[dev]
 ```
 
-### 3.2 Run API
+### 4.2 Run API
 
 ```bash
 uvicorn neurorouter.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 3.3 Call Inference
+### 4.3 Call Inference
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/classify" \
@@ -68,7 +103,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/classify" \
   -F "top_k=5"
 ```
 
-## 4. Response Schema
+## 5. Response Schema
 
 ```json
 {
@@ -95,7 +130,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/classify" \
 }
 ```
 
-## 5. Add More Models
+## 6. Add More Models
 
 Option A: Register in code (`src/neurorouter/infrastructure/registry.py`).
 
@@ -113,7 +148,7 @@ JSON format:
 }
 ```
 
-## 6. License and Commercial Use
+## 7. License and Commercial Use
 
 This repository uses a **source-available demo license** (see `LICENSE`):
 
@@ -121,7 +156,7 @@ This repository uses a **source-available demo license** (see `LICENSE`):
 - Commercial use requires your explicit written authorization.
 - Keep proprietary modules/models/private datasets outside this public repo.
 
-## 7. Release Workflow
+## 8. Release Workflow
 
 ```powershell
 .\scripts\release.ps1 -Version 0.1.0 -Notes "Initial demo release"
